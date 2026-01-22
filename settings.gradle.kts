@@ -1,3 +1,7 @@
 rootProject.name = "chirp"
 
-include ("app")
+include("app")
+include("user")
+include("chat")
+include("notification")
+include("common")
