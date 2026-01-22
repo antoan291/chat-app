@@ -1,5 +1,6 @@
 package com.plcoding.chirp
 
+import com.plcoding.chat.Test
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
@@ -7,5 +8,6 @@ import org.springframework.boot.runApplication
 class ChirpApplication
 
 fun main(args: Array<String>) {
+	Test()
 	runApplication<ChirpApplication>(*args)
 }

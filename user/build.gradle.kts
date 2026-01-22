@@ -1,13 +1,11 @@
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlin.jpa)
-    alias(libs.plugins.spring.boot)
-    alias(libs.plugins.spring.dependency.management)
-    alias(libs.plugins.kotlin.spring)
+    id("java-library")
+    id("chirp.spring-boot-service")
+    kotlin("plugin.jpa")
 }
 
 group = "com.plcoding"
-version = "0.0.1-SNAPSHOT"
+version = "unspecified"
 
 repositories {
     mavenCentral()
@@ -16,11 +14,9 @@ repositories {
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
-}
+    implementation(projects.common)
 
-kotlin {
-    jvmToolchain(21)
+    testImplementation(kotlin("test"))
 }
 
 tasks.test {
