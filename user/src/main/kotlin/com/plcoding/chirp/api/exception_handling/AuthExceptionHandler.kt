@@ -28,7 +28,7 @@ class AuthExceptionHandler {
     fun onUserNotFound(
         e: UserNotFoundException
     ) = mapOf(
-        "code" to "USER_NOT_FOUND",
+        "code" to "USER_NOT_    FOUND",
         "message" to e.message
     )
 
