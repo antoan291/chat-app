@@ -1,22 +1,33 @@
 package com.plcoding.chirp.api.controllers
 
 import com.plcoding.chirp.api.dto.AuthenticatedUserDto
+import com.plcoding.chirp.api.dto.ChangePasswordRequest
+import com.plcoding.chirp.api.dto.EmailRequest
 import com.plcoding.chirp.api.dto.LoginRequest
 import com.plcoding.chirp.api.dto.RefreshRequest
 import com.plcoding.chirp.api.dto.RegisterRequest
+import com.plcoding.chirp.api.dto.ResetPasswordRequest
 import com.plcoding.chirp.api.dto.UserDto
 import com.plcoding.chirp.api.mappers.toAuthenticatedUserDto
 import com.plcoding.chirp.api.mappers.toUserDto
-import com.plcoding.chirp.service.auth.AuthService
+import com.plcoding.chirp.service.AuthService
+import com.plcoding.chirp.service.EmailVerificationService
+import com.plcoding.chirp.service.PasswordResetService
 import jakarta.validation.Valid
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/auth")
-class AuthController(private val authService: AuthService) {
+class AuthController(
+    private val authService: AuthService,
+    private val emailVerificationService: EmailVerificationService,
+    private val passwordResetService: PasswordResetService
+) {
 
     @PostMapping("/register")
     fun register(
@@ -42,7 +53,7 @@ class AuthController(private val authService: AuthService) {
     @PostMapping("/refresh")
     fun refresh(
         @RequestBody body: RefreshRequest
-    ): AuthenticatedUserDto{
+    ): AuthenticatedUserDto {
         return authService
             .refresh(body.refreshToken)
             .toAuthenticatedUserDto()
@@ -51,8 +62,38 @@ class AuthController(private val authService: AuthService) {
     @PostMapping("/logout")
     fun logout(
         @RequestBody body: RefreshRequest
-    ){
+    ) {
         authService.logout(body.refreshToken)
     }
 
+    @GetMapping("/verify")
+    fun verifyEmail(
+        @RequestParam token: String
+    ) {
+        emailVerificationService.verifyEmail(token)
+    }
+
+    @PostMapping("/forgot-password")
+    fun forgotPassword(
+        @RequestBody body: EmailRequest
+    ){
+        passwordResetService.requestPasswordReset(body.email)
+    }
+
+    @PostMapping("/reset-password")
+    fun resetPassword(
+        @Valid @RequestBody body: ResetPasswordRequest
+    ){
+        passwordResetService.resetPassword(
+            token = body.token,
+            newPassword = body.newPassword
+        )
+    }
+
+    @PostMapping("/change-password")
+    fun changePassword(
+        @Valid @RequestBody body: ChangePasswordRequest
+    ){
+        //TODO: Extract request user ID and call service
+    }
 }
