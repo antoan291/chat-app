@@ -1,6 +1,6 @@
 package com.plcoding.chirp.domain.model
 
-data class AuthenticatedUser(
+data class  AuthenticatedUser(
     val user: User,
     val accessToken: String,
     val refreshToken: String,

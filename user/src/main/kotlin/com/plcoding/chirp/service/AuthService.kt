@@ -2,7 +2,7 @@ package com.plcoding.chirp.service
 
 import com.plcoding.chirp.domain.events.user.UserEvent
 import com.plcoding.chirp.domain.exception.EmailNotVerifiedException
-import com.plcoding.chirp.domain.exception.InvalidCredentialException
+import com.plcoding.chirp.domain.exception.InvalidCredentialsException
 import com.plcoding.chirp.domain.exception.InvalidTokenException
 import com.plcoding.chirp.domain.exception.UserAlreadyExistsException
 import com.plcoding.chirp.domain.exception.UserNotFoundException
@@ -16,7 +16,6 @@ import com.plcoding.chirp.infra.database.repositories.RefreshTokenRepository
 import com.plcoding.chirp.infra.database.repositories.UserRepository
 import com.plcoding.chirp.infra.message_queue.EventPublisher
 import com.plcoding.chirp.infra.security.PasswordEncoder
-import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -24,32 +23,34 @@ import java.security.MessageDigest
 import java.time.Instant
 import java.util.Base64
 
-
 @Service
-class AuthService (
+class AuthService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
     private val jwtService: JwtService,
     private val refreshTokenRepository: RefreshTokenRepository,
     private val emailVerificationService: EmailVerificationService,
     private val eventPublisher: EventPublisher
-){
+) {
+
     @Transactional
-    fun register(email: String, username: String, password: String): User{
+    fun register(email: String, username: String, password: String): User {
         val trimmedEmail = email.trim()
         val user = userRepository.findByEmailOrUsername(
             email = trimmedEmail,
-            username = username,
-            )
-        if(user != null){
+            username = username.trim()
+        )
+        if(user != null) {
             throw UserAlreadyExistsException()
         }
 
-        val savedUser = userRepository.saveAndFlush(UserEntity(
-            email = trimmedEmail,
-            username = username.trim(),
-            hashedPassword = passwordEncoder.encode(password),
-        )).toUser()
+        val savedUser = userRepository.saveAndFlush(
+            UserEntity(
+                email = trimmedEmail,
+                username = username.trim(),
+                hashedPassword = passwordEncoder.encode(password)!!
+            )
+        ).toUser()
 
         val token = emailVerificationService.createVerificationToken(trimmedEmail)
 
@@ -65,19 +66,18 @@ class AuthService (
         return savedUser
     }
 
-
     fun login(
-        email:String,
-        password: String,
-    ): AuthenticatedUser{
+        email: String,
+        password: String
+    ): AuthenticatedUser {
         val user = userRepository.findByEmail(email.trim())
-            ?: throw InvalidCredentialException()
+            ?: throw InvalidCredentialsException()
 
-        if(!passwordEncoder.matches(password, user.hashedPassword)){
-            throw InvalidCredentialException()
+        if(!passwordEncoder.matches(password, user.hashedPassword)) {
+            throw InvalidCredentialsException()
         }
 
-        if(!user.hasVerifiedEmail){
+        if(!user.hasVerifiedEmail) {
             throw EmailNotVerifiedException()
         }
 
@@ -85,7 +85,7 @@ class AuthService (
             val accessToken = jwtService.generateAccessToken(userId)
             val refreshToken = jwtService.generateRefreshToken(userId)
 
-        storeRefreshToken(userId, refreshToken)
+            storeRefreshToken(userId, refreshToken)
 
             AuthenticatedUser(
                 user = user.toUser(),
@@ -96,10 +96,10 @@ class AuthService (
     }
 
     @Transactional
-    fun refresh(refreshToken: String): AuthenticatedUser{
-        if(!jwtService.validateRefreshToken(refreshToken)){
+    fun refresh(refreshToken: String): AuthenticatedUser {
+        if(!jwtService.validateRefreshToken(refreshToken)) {
             throw InvalidTokenException(
-                message = "Invalid refresh token",
+                message = "Invalid refresh token"
             )
         }
 
@@ -130,18 +130,17 @@ class AuthService (
                 accessToken = newAccessToken,
                 refreshToken = newRefreshToken
             )
-
         } ?: throw UserNotFoundException()
     }
 
     @Transactional
-    fun logout(refreshToken: String){
+    fun logout(refreshToken: String) {
         val userId = jwtService.getUserIdFromToken(refreshToken)
         val hashed = hashToken(refreshToken)
         refreshTokenRepository.deleteByUserIdAndHashedToken(userId, hashed)
     }
 
-    private fun storeRefreshToken(userId: UserId, token: String){
+    private fun storeRefreshToken(userId: UserId, token: String) {
         val hashed = hashToken(token)
         val expiryMs = jwtService.refreshTokenValidityMs
         val expiresAt = Instant.now().plusMillis(expiryMs)
@@ -155,7 +154,7 @@ class AuthService (
         )
     }
 
-    private fun hashToken(token: String): String{
+    private fun hashToken(token: String): String {
         val digest = MessageDigest.getInstance("SHA-256")
         val hashBytes = digest.digest(token.encodeToByteArray())
         return Base64.getEncoder().encodeToString(hashBytes)

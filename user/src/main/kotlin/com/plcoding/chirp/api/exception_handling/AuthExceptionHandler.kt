@@ -1,7 +1,7 @@
 package com.plcoding.chirp.api.exception_handling
 
 import com.plcoding.chirp.domain.exception.EmailNotVerifiedException
-import com.plcoding.chirp.domain.exception.InvalidCredentialException
+import com.plcoding.chirp.domain.exception.InvalidCredentialsException
 import com.plcoding.chirp.domain.exception.InvalidTokenException
 import com.plcoding.chirp.domain.exception.RateLimitException
 import com.plcoding.chirp.domain.exception.SamePasswordException
@@ -32,14 +32,14 @@ class AuthExceptionHandler {
     fun onUserNotFound(
         e: UserNotFoundException
     ) = mapOf(
-        "code" to "USER_NOT_    FOUND",
+        "code" to "USER_NOT_FOUND",
         "message" to e.message
     )
 
-    @ExceptionHandler(InvalidCredentialException::class)
+    @ExceptionHandler(InvalidCredentialsException::class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     fun onInvalidCredentials(
-        e: InvalidCredentialException
+        e: InvalidCredentialsException
     ) = mapOf(
         "code" to "INVALID_CREDENTIALS",
         "message" to e.message
@@ -86,7 +86,7 @@ class AuthExceptionHandler {
     fun onRateLimitExceeded(
         e: RateLimitException
     ) = mapOf(
-        "code" to "Rate_LIMIT_EXCEEDED",
+        "code" to "RATE_LIMIT_EXCEEDED",
         "message" to e.message
     )
 

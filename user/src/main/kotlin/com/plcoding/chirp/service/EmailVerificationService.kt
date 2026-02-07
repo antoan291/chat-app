@@ -41,8 +41,6 @@ class EmailVerificationService(
                 verificationToken = token.token
             )
         )
-
-        throw Exception()
     }
 
     @Transactional

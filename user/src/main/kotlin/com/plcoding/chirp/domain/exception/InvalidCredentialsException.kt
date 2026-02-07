@@ -1,5 +1,5 @@
 package com.plcoding.chirp.domain.exception
 
-class InvalidCredentialException: RuntimeException (
+class InvalidCredentialsException: RuntimeException (
     "The entered credentials aren't valid"
 )

@@ -1,7 +1,7 @@
 package com.plcoding.chirp.service
 
 import com.plcoding.chirp.domain.events.user.UserEvent
-import com.plcoding.chirp.domain.exception.InvalidCredentialException
+import com.plcoding.chirp.domain.exception.InvalidCredentialsException
 import com.plcoding.chirp.domain.exception.InvalidTokenException
 import com.plcoding.chirp.domain.exception.SamePasswordException
 import com.plcoding.chirp.domain.exception.UserNotFoundException
@@ -98,7 +98,7 @@ class PasswordResetService(
             ?: throw UserNotFoundException()
 
         if(!passwordEncoder.matches(oldPassword, user.hashedPassword)) {
-            throw InvalidCredentialException()
+            throw InvalidCredentialsException()
         }
 
         if(oldPassword == newPassword) {
