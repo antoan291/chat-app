@@ -1,6 +1,6 @@
-package com.plcoding.chat.domain.infra.database.repositories
+package com.plcoding.chat.infra.database.repositories
 
-import com.plcoding.chat.domain.infra.database.entities.ChatMessageEntity
+import com.plcoding.chat.infra.database.entities.ChatMessageEntity
 import com.plcoding.chirp.domain.type.ChatId
 import com.plcoding.chirp.domain.type.ChatMessageId
 import org.springframework.data.domain.Pageable

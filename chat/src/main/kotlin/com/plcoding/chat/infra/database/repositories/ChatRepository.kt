@@ -1,6 +1,6 @@
-package com.plcoding.chat.domain.infra.database.repositories
+package com.plcoding.chat.infra.database.repositories
 
-import com.plcoding.chat.domain.infra.database.entities.ChatEntity
+import com.plcoding.chat.infra.database.entities.ChatEntity
 import com.plcoding.chirp.domain.type.ChatId
 import com.plcoding.chirp.domain.type.UserId
 import org.springframework.data.jpa.repository.JpaRepository

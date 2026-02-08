@@ -1,4 +1,4 @@
-package com.plcoding.chat.domain.infra.database.entities
+package com.plcoding.chat.infra.database.entities
 
 import com.plcoding.chirp.domain.type.ChatId
 import jakarta.persistence.Entity

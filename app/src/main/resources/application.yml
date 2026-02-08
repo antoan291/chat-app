@@ -84,7 +84,7 @@ jwt:
 
 chirp:
   email:
-    from: mail@pl-coding.com
+    from: antoan2926@abv.bg
     verification:
       expiry-hours: 24
     reset-password:

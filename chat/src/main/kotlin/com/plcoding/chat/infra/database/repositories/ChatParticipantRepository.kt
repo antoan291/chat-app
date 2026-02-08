@@ -1,12 +1,12 @@
-package com.plcoding.chat.domain.infra.database.repositories
+package com.plcoding.chat.infra.database.repositories
 
-import com.plcoding.chat.domain.infra.database.entities.ChatParticipantEntity
+import com.plcoding.chat.infra.database.entities.ChatParticipantEntity
 import com.plcoding.chirp.domain.type.UserId
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 
 interface ChatParticipantRepository: JpaRepository<ChatParticipantEntity, UserId> {
-    fun findByUserIdIn(userIds: List<UserId>): Set<ChatParticipantEntity>
+    fun findByUserIdIn(userIds: Set<UserId>): Set<ChatParticipantEntity>
 
     @Query("""
         SELECT p
