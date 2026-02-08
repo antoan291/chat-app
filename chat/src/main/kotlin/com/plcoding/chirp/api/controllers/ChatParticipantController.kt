@@ -3,7 +3,7 @@ package com.plcoding.chirp.api.controllers
 import com.plcoding.chirp.api.dto.ChatParticipantDto
 import com.plcoding.chirp.api.mappers.toChatParticipantDto
 import com.plcoding.chirp.service.ChatParticipantService
-import com.plcoding.chirp.util.requestUserId
+import com.plcoding.chirp.api.util.requestUserId
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping

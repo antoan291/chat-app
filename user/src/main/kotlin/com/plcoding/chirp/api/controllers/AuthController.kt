@@ -11,7 +11,7 @@ import com.plcoding.chirp.api.dto.ResetPasswordRequest
 import com.plcoding.chirp.api.dto.UserDto
 import com.plcoding.chirp.api.mappers.toAuthenticatedUserDto
 import com.plcoding.chirp.api.mappers.toUserDto
-import com.plcoding.chirp.util.requestUserId
+import com.plcoding.chirp.api.util.requestUserId
 import com.plcoding.chirp.infra.rate_limiting.EmailRateLimiter
 import com.plcoding.chirp.service.AuthService
 import com.plcoding.chirp.service.EmailVerificationService

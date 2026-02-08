@@ -1,4 +1,4 @@
-package com.plcoding.chirp.util
+package com.plcoding.chirp.api.util
 
 import com.plcoding.chirp.domain.exception.UnauthorizedException
 import com.plcoding.chirp.domain.type.UserId
