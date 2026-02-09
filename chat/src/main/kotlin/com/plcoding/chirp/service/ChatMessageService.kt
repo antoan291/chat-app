@@ -1,8 +1,11 @@
 package com.plcoding.chirp.service
 
+import com.plcoding.chirp.api.dto.ChatMessageDto
+import com.plcoding.chirp.api.mappers.toChatMessageDto
 import com.plcoding.chirp.domain.event.MessageDeletedEvent
 import com.plcoding.chirp.domain.events.chat.ChatEvent
 import com.plcoding.chirp.domain.exception.ChatNotFoundException
+import com.plcoding.chirp.domain.exception.ChatParticipantNotFoundException
 import com.plcoding.chirp.domain.exception.ForbiddenException
 import com.plcoding.chirp.domain.exception.MessageNotFoundException
 import com.plcoding.chirp.domain.models.ChatMessage
@@ -15,10 +18,13 @@ import com.plcoding.chirp.infra.database.repositories.ChatMessageRepository
 import com.plcoding.chirp.infra.database.repositories.ChatParticipantRepository
 import com.plcoding.chirp.infra.database.repositories.ChatRepository
 import com.plcoding.chirp.infra.message_queue.EventPublisher
-import jakarta.transaction.Transactional
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 
 @Service
 class ChatMessageService(
@@ -29,18 +35,21 @@ class ChatMessageService(
     private val eventPublisher: EventPublisher
 ) {
 
-
     @Transactional
+    @CacheEvict(
+        value = ["messages"],
+        key = "#chatId",
+    )
     fun sendMessage(
         chatId: ChatId,
         senderId: UserId,
         content: String,
         messageId: ChatMessageId? = null
-    ): ChatMessage{
+    ): ChatMessage {
         val chat = chatRepository.findChatById(chatId, senderId)
             ?: throw ChatNotFoundException()
         val sender = chatParticipantRepository.findByIdOrNull(senderId)
-           ?: throw ChatNotFoundException()
+            ?: throw ChatParticipantNotFoundException(senderId)
 
         val savedMessage = chatMessageRepository.saveAndFlush(
             ChatMessageEntity(
@@ -48,7 +57,7 @@ class ChatMessageService(
                 content = content.trim(),
                 chatId = chatId,
                 chat = chat,
-                sender = sender,
+                sender = sender
             )
         )
 
@@ -62,7 +71,6 @@ class ChatMessageService(
             )
         )
 
-
         return savedMessage.toChatMessage()
     }
 
@@ -70,11 +78,11 @@ class ChatMessageService(
     fun deleteMessage(
         messageId: ChatMessageId,
         requestUserId: UserId
-    ){
+    ) {
         val message = chatMessageRepository.findByIdOrNull(messageId)
             ?: throw MessageNotFoundException(messageId)
 
-        if(message.sender.userId != requestUserId){
+        if(message.sender.userId != requestUserId) {
             throw ForbiddenException()
         }
 
@@ -86,5 +94,15 @@ class ChatMessageService(
                 messageId = messageId
             )
         )
+
+        evictMessagesCache(message.chatId)
+    }
+
+    @CacheEvict(
+        value = ["messages"],
+        key = "#chatId",
+    )
+    fun evictMessagesCache(chatId: ChatId) {
+        // NO-OP: Let Spring handle the cache evict
     }
 }

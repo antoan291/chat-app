@@ -2,8 +2,8 @@ package com.plcoding.chirp.service
 
 import com.plcoding.chirp.api.dto.ChatMessageDto
 import com.plcoding.chirp.api.mappers.toChatMessageDto
-import com.plcoding.chirp.domain.event.ChatParticipantJoinedEvent
 import com.plcoding.chirp.domain.event.ChatParticipantLeftEvent
+import com.plcoding.chirp.domain.event.ChatParticipantsJoinedEvent
 import com.plcoding.chirp.domain.exception.ChatNotFoundException
 import com.plcoding.chirp.domain.exception.ChatParticipantNotFoundException
 import com.plcoding.chirp.domain.exception.ForbiddenException
@@ -18,6 +18,7 @@ import com.plcoding.chirp.infra.database.repositories.ChatRepository
 import com.plcoding.chirp.domain.type.UserId
 import com.plcoding.chirp.infra.database.mappers.toChatMessage
 import com.plcoding.chirp.infra.database.repositories.ChatMessageRepository
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
@@ -33,11 +34,17 @@ class ChatService(
     private val applicationEventPublisher: ApplicationEventPublisher,
 ) {
 
+    @Cacheable(
+        value = ["messages"],
+        key = "#chatId",
+        condition = "#before == null && #pageSize <= 50",
+        sync = true
+    )
     fun getChatMessages(
         chatId: ChatId,
         before: Instant?,
         pageSize: Int
-    ): List<ChatMessageDto>{
+    ): List<ChatMessageDto> {
         return chatMessageRepository
             .findByChatIdBefore(
                 chatId = chatId,
@@ -46,7 +53,30 @@ class ChatService(
             )
             .content
             .asReversed()
-            .map{ it.toChatMessage().toChatMessageDto() }
+            .map { it.toChatMessage().toChatMessageDto() }
+    }
+
+    fun getChatById(
+        chatId: ChatId,
+        requestUserId: UserId
+    ): Chat? {
+        return chatRepository
+            .findChatById(chatId, requestUserId)
+            ?.toChat(lastMessageForChat(chatId))
+    }
+
+    fun findChatsByUser(userId: UserId): List<Chat> {
+        val chatEntities = chatRepository.findAllByUserId(userId)
+        val chatIds = chatEntities.mapNotNull { it.id }
+        val latestMessages = chatMessageRepository
+            .findLatestMessagesByChatIds(chatIds.toSet())
+            .associateBy { it.chatId }
+
+        return chatEntities
+            .map {
+                it.toChat(lastMessage = latestMessages[it.id]?.toChatMessage())
+            }
+            .sortedByDescending { it.lastActivityAt }
     }
 
     @Transactional
@@ -103,9 +133,9 @@ class ChatService(
         ).toChat(lastMessage)
 
         applicationEventPublisher.publishEvent(
-            ChatParticipantJoinedEvent(
+            ChatParticipantsJoinedEvent(
                 chatId = chatId,
-                userIds = userIds,
+                userIds = userIds
             )
         )
 
@@ -137,7 +167,7 @@ class ChatService(
         applicationEventPublisher.publishEvent(
             ChatParticipantLeftEvent(
                 chatId = chatId,
-                userId = userId,
+                userId = userId
             )
         )
     }
