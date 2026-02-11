@@ -16,7 +16,7 @@ class ChatMessageController(
 
     @DeleteMapping("/{messageId}")
     fun deleteMessage(
-        @PathVariable messageId: ChatMessageId,
+        @PathVariable ("messageId") messageId: ChatMessageId,
     ){
         chatMessageService.deleteMessage(messageId, requestUserId)
     }

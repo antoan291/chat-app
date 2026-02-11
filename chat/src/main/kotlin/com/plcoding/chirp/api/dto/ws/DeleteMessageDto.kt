@@ -1,9 +1,9 @@
-package com.plcoding.chirp.domain.event
+package com.plcoding.chirp.api.dto.ws
 
 import com.plcoding.chirp.domain.type.ChatId
 import com.plcoding.chirp.domain.type.ChatMessageId
 
-data class MessageDeletedEvent(
+data class DeleteMessageDto(
     val chatId: ChatId,
-    val messageId: ChatMessageId,
+    val messageId: ChatMessageId
 )
