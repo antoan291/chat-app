@@ -19,10 +19,10 @@ class JwtAuthFilter(
         request: HttpServletRequest,
         response: HttpServletResponse,
         filterChain: FilterChain
-    ){
+    ) {
         val authHeader = request.getHeader(HttpHeaders.AUTHORIZATION)
-        if(authHeader != null && authHeader.startsWith("Bearer ")){
-            if(jwtService.validateAccessToken(authHeader)){
+        if(authHeader != null && authHeader.startsWith("Bearer ")) {
+            if(jwtService.validateAccessToken(authHeader)) {
                 val userId = jwtService.getUserIdFromToken(authHeader)
                 val auth = UsernamePasswordAuthenticationToken(
                     userId,

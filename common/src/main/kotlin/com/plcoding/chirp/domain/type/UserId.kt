@@ -1,4 +1,5 @@
 package com.plcoding.chirp.domain.type
 
-class UserId {
-}
+import java.util.UUID
+
+typealias UserId = UUID
