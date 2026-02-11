@@ -102,3 +102,6 @@ supabase:
 #  url: "https://aws-1-eu-west-1.pooler.supabase.com"
   url: "https://ezwcstnjhqgtgyryzeqt.supabase.co"
   service-key: ${SUPABASE_SERVICE_KEY}
+
+firebase:
+  credentials-path: "classpath:firebase-credentials/chirp-firebase-adminsdk.json"
