@@ -40,7 +40,7 @@ class FirebasePushNotificationService(
                 .build()
 
             FirebaseApp.initializeApp(options)
-            logger.info("Firebase Admin SDK initialized successfully")
+            logger.info("Firebase Admin SDK successfull")
         } catch(e: Exception) {
             logger.error("Error initializing Firebase Admin SDK", e)
             throw e
