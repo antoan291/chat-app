@@ -10,21 +10,27 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfigurationSource
 
 @Configuration
 class SecurityConfig {
 
     @Bean
-    fun filterChain(httpSecurity: HttpSecurity, jwtAuthFilter: JwtAuthFilter): SecurityFilterChain {
+    fun filterChain(
+        httpSecurity: HttpSecurity,
+        jwtAuthFilter: JwtAuthFilter,
+        corsConfigurationSource: CorsConfigurationSource
+    ): SecurityFilterChain {
         return httpSecurity
             .csrf { it.disable() }
+            .cors { it.configurationSource(corsConfigurationSource) }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests { auth ->
                 auth
-                    .requestMatchers("/api/auth/**")
-                    .permitAll()
                     .requestMatchers("/api/auth/change-password")
                     .authenticated()
+                    .requestMatchers("/api/auth/**")
+                    .permitAll()
                     .dispatcherTypeMatchers(
                         DispatcherType.ERROR,
                         DispatcherType.FORWARD

@@ -27,11 +27,14 @@ class EmailVerificationService(
 
     @Transactional
     fun resendVerificationEmail(email: String) {
-        val token = createVerificationToken(email)
+        val userEntity = userRepository.findByEmail(email.lowercase().trim())
+            ?: throw UserNotFoundException()
 
-        if(token.user.hasEmailVerified) {
+        if(userEntity.hasVerifiedEmail){
             return
         }
+
+        val token = createVerificationToken(email)
 
         eventPublisher.publish(
             event = UserEvent.RequestResendVerification(

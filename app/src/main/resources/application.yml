@@ -2,6 +2,13 @@ spring:
   application:
     name: chirp
 
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: "1"
+
   data:
     redis:
 #      host: "redis-10880.c300.eu-central-1-1.ec2.cloud.redislabs.com"
@@ -44,8 +51,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-        show_sql: true
+
 
 
   mail:
@@ -105,3 +111,6 @@ supabase:
 
 firebase:
   credentials-path: "classpath:firebase-credentials/chirp-firebase-adminsdk.json"
+
+server:
+  port: 8095

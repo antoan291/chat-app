@@ -1,7 +1,8 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
+
   mail:
     host: smtp.mailgun.org
     username: chirp@sandbox0629e36e85c647868a768fc500c09248.mailgun.org
@@ -18,9 +19,16 @@ chirp:
   rate-limit:
     ip:
       apply-limit: false
+  cors:
+    allowed-origins:
+      - "http://localhost:3000"
+      - "http://localhost:8080"
   web-socket:
     allowed-origin: "http://localhost:8080"
 
 logging:
   level:
-    com.plcind.chirp: DEBUG
+    com.plcoding.chirp: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%X{correlationId:-no-id}] %-5level %logger{36} - %msg%n"
+

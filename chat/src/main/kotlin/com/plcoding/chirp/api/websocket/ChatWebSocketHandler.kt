@@ -59,7 +59,19 @@ class ChatWebSocketHandler(
                 return
             }
 
-        val userId = jwtService.getUserIdFromToken(authHeader)
+        if (!jwtService.validateAccessToken(authHeader)) {
+            logger.warn("Session ${session.id} was closed due to invalid or non-access token")
+            session.close(CloseStatus.SERVER_ERROR.withReason("Authentication failed"))
+            return
+        }
+
+        val userId = try {
+            jwtService.getUserIdFromToken(authHeader)
+        } catch (e: Exception) {
+            logger.warn("Session ${session.id} was closed due to token parsing failure", e)
+            session.close(CloseStatus.SERVER_ERROR.withReason("Authentication failed"))
+            return
+        }
 
         val userSession = UserSession(
             userId = userId,

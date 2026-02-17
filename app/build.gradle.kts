@@ -33,4 +33,12 @@ dependencies {
 	implementation(libs.spring.boot.starter.data.redis)
 	implementation(libs.spring.boot.starter.data.jpa)
 	runtimeOnly(libs.postgresql)
+	implementation(libs.flyway.core)
+	implementation(libs.flyway.postgresql)
+
+	testImplementation(libs.spring.boot.starter.test)
+	testImplementation(libs.spring.security.test)
+	testImplementation(libs.testcontainers.junit)
+	testImplementation(libs.testcontainers.postgresql)
+	testImplementation(libs.testcontainers.rabbitmq)
 }

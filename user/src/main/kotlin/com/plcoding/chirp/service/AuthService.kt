@@ -35,7 +35,7 @@ class AuthService(
 
     @Transactional
     fun register(email: String, username: String, password: String): User {
-        val trimmedEmail = email.trim()
+        val trimmedEmail = email.lowercase().trim()
         val user = userRepository.findByEmailOrUsername(
             email = trimmedEmail,
             username = username.trim()
@@ -70,7 +70,7 @@ class AuthService(
         email: String,
         password: String
     ): AuthenticatedUser {
-        val user = userRepository.findByEmail(email.trim())
+        val user = userRepository.findByEmail(email.lowercase().trim())
             ?: throw InvalidCredentialsException()
 
         if(!passwordEncoder.matches(password, user.hashedPassword)) {
@@ -135,8 +135,20 @@ class AuthService(
 
     @Transactional
     fun logout(refreshToken: String) {
+        if (!jwtService.validateRefreshToken(refreshToken)) {
+            throw InvalidTokenException(
+                message = "Invalid refresh token"
+            )
+        }
+
         val userId = jwtService.getUserIdFromToken(refreshToken)
         val hashed = hashToken(refreshToken)
+
+        refreshTokenRepository.findByUserIdAndHashedToken(
+            userId = userId,
+            hashedToken = hashed
+        ) ?: throw InvalidTokenException("Refresh token not found")
+
         refreshTokenRepository.deleteByUserIdAndHashedToken(userId, hashed)
     }
 

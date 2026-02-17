@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query
 
 interface ChatRepository: JpaRepository<ChatEntity, ChatId> {
     @Query("""
-        SELECT c
+        SELECT DISTINCT c
         FROM ChatEntity c
         LEFT JOIN FETCH c.participants
         LEFT JOIN FETCH c.creator
@@ -22,7 +22,7 @@ interface ChatRepository: JpaRepository<ChatEntity, ChatId> {
     fun findChatById(id: ChatId, userId: UserId): ChatEntity?
 
     @Query("""
-        SELECT c
+        SELECT DISTINCT c
         FROM ChatEntity c
         LEFT JOIN FETCH c.participants
         LEFT JOIN FETCH c.creator

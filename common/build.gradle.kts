@@ -1,6 +1,7 @@
 plugins {
     id("java-library")
     id("chirp.kotlin-common")
+//    alias(libs.plugins.kotlin.jvm)
 }
 
 group = "com.plcoding"

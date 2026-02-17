@@ -31,12 +31,10 @@ interface ChatMessageRepository: JpaRepository<ChatMessageEntity, ChatMessageId>
         FROM ChatMessageEntity m
         LEFT JOIN FETCH m.sender
         WHERE m.chatId IN :chatIds
-        AND (m.createdAt, m.id) = (
-            SELECT m2.createdAt, m2.id
+        AND m.createdAt = (
+            SELECT MAX(m2.createdAt)
             FROM ChatMessageEntity m2
             WHERE m2.chatId = m.chatId
-            ORDER BY m2.createdAt DESC
-            LIMIT 1
         )
     """)
     fun findLatestMessagesByChatIds(

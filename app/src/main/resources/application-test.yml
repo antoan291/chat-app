@@ -1,0 +1,37 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop  # Fresh schema for each test run
+  flyway:
+    enabled: false  # Let Hibernate manage schema in tests
+
+jwt:
+  secret: "dGVzdC1zZWNyZXQta2V5LXRoYXQtaXMtbG9uZy1lbm91Z2gtZm9yLWhzMjU2LWFsZ29yaXRobQ=="
+  expiration-minutes: 60
+
+chirp:
+  email:
+    from: "test@test.com"
+    url: "http://localhost:8080"
+    verification:
+      expiry-hours: 24
+    reset-password:
+      expiry-minutes: 30
+  rate-limit:
+    ip:
+      apply-limit: false
+  cors:
+    allowed-origins:
+      - "http://localhost:3000"
+  web-socket:
+    allowed-origin: "http://localhost:3000"
+
+nginx:
+  require-proxy: false
+
+supabase:
+  url: "http://localhost:9999"
+  service-key: "test-key"
+
+firebase:
+  credentials-path: ""

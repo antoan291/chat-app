@@ -36,7 +36,7 @@ class ChatService(
 
     @Cacheable(
         value = ["messages"],
-        key = "#chatId",
+        key = "#chatId + ':' + #pageSize",
         condition = "#before == null && #pageSize <= 50",
         sync = true
     )
@@ -84,22 +84,31 @@ class ChatService(
         creatorId: UserId,
         otherUserIds: Set<UserId>
     ): Chat {
-        val otherParticipants = chatParticipantRepository.findByUserIdIn(
-            userIds = otherUserIds
-        )
-
-        val allParticipants = (otherParticipants + creatorId)
-        if(allParticipants.size < 2) {
-            throw InvalidChatSizeException()
-        }
 
         val creator = chatParticipantRepository.findByIdOrNull(creatorId)
             ?: throw ChatParticipantNotFoundException(creatorId)
 
+        val otherParticipants = chatParticipantRepository.findByUserIdIn(
+            userIds = otherUserIds
+        )
+
+        val foundUserIds = otherParticipants.map { it.userId }.toSet()
+        val missingUserIds = otherUserIds - foundUserIds
+        if(missingUserIds.isNotEmpty()) {
+            throw ChatParticipantNotFoundException(missingUserIds.first())
+        }
+
+        val allParticipants = setOf(creator) + otherParticipants
+
+        if(allParticipants.size < 2) {
+            throw InvalidChatSizeException()
+        }
+
+
         return chatRepository.save(
             ChatEntity(
                 creator = creator,
-                participants = setOf(creator) + otherParticipants
+                participants = allParticipants
             )
         ).toChat(lastMessage = null)
     }
